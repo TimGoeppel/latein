@@ -1,0 +1,112 @@
+---
+---
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+	    <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Latein | Tim-Goeppel.de</title>
+        <meta name="author" content="Tim Göppel">
+        <meta name="description" content="Latein">
+        <meta property="og:title" content="Latein | Tim Göppel">
+        <meta property="og:description" content="Latein">
+		<style>
+			table, th, td {
+				border: 1px solid black
+			}
+			#newwords, #known {
+				color: green;
+			}
+			#wrongwords, #unknown {
+				color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<p><span id="newwords">0</span>, <span id="wrongwords">0</span></p>
+		
+		<p id="currentword"></p>
+		
+		<p id="translation"></p>
+		
+		<p><button id="show" onclick="showTranslation();">Zeige</button>
+		<button id="known" onclick="nextWord(true);" style="visibility: hidden;">Bekannt</button> <button id="unknown" onclick="nextWord(false);" style="visibility: hidden;">Unbekannt</button></p>
+		
+		<table id="voctable">
+		<tr><th>Ausgewählt</th><th>Seite</th><th>Fällig bis</th><th>Erstes Wort</th></tr>{% assign col = 0 %}{% for voc in site.data.vokabeln %}
+		<tr><td><input type="checkbox" class="vocselected" onclick="selectVoc({% increment col %});"></td><td>S. {{ voc.page }}</td><td>{{ voc.date | date: "%e.%m.%Y" }}</td><td>{% assign example = voc.vocabulary | first %}{{ example[0] }}: {{ example[1] }}</td></tr>{% endfor %}
+		</table>
+		<p><button onclick="loadWords();">Vokabeln laden</button></p>
+	</body>
+<script defer type="text/javascript">
+const vocabulary = [ {% for voc in site.data.vokabeln %}
+	[{% for row in voc.vocabulary %}["{{ row | join: '", "'}}"]{% unless forloop.last %},{% endunless %}{% endfor %}]{% unless forloop.last %},{% endunless %}{% endfor %}
+];
+let currentWord = null;
+let selectedVocs = localStorage.getItem("selectedvocs");
+if(!Array.isArray(selectedVocs)) {
+	selectedVocs = [];
+	selectedVocs[vocabulary.length - 1] = true;
+}
+
+let currentWords = localStorage.getItem("currentwords");
+if(!Array.isArray(currentWords)) {
+	loadWords();
+}
+
+function loadWords() {
+	currentWords = [[], []];
+	currentWords[0] = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem);
+	currentWord = -1;
+	nextWord(false);
+}
+
+const selectedVocElems = document.getElementsByClassName("vocselected");
+selectedVocs.forEach((elem, index) => selectedVocElems[index].checked = elem == true);
+
+
+function selectVoc(number) {
+	selectedVocs[number] = selectedVocs[number] != true;
+	localStorage.setItem("selectedvocs", selectedVocs);
+}
+
+function updateCurrentWords() {
+	document.getElementById("newwords").innerHTML = currentWords[0].length;
+	document.getElementById("wrongwords").innerHTML = currentWords[1].length;
+	localStorage.setItem("currentwords", currentWords);
+}
+
+function nextWord(known) {
+	document.getElementById("translation").innerHTML = "";
+	let newCurrentWords = currentWords[0];
+	if(known) {
+		newCurrentWords.splice(currentWord, 1);
+	} else {
+		const wrongWord = newCurrentWords[currentWord];
+		if(wrongWord) {
+			currentWords[1].push(wrongWord);
+			newCurrentWords.splice(currentWord, 1);
+		}
+	}
+	if(!newCurrentWords.length) {
+		currentWords[0] = currentWords[1];
+		newCurrentWords = currentWords[0];
+		currentWords[1] = [];
+	}
+	currentWord = Math.floor(Math.random() * newCurrentWords.length);
+	document.getElementById("currentword").innerHTML = newCurrentWords.length ? newCurrentWords[currentWord][0] : "Fertig";
+	document.getElementById("show").style.visibility = "visible";
+	document.getElementById("known").style.visibility = "hidden";
+	document.getElementById("unknown").style.visibility = "hidden";
+	updateCurrentWords();
+}
+
+function showTranslation() {
+	const translation = currentWords[0][currentWord];
+	document.getElementById("translation").innerHTML = translation[1] + (translation[2] ? "<br><i>" + translation[2] + "</i>" : "");
+	document.getElementById("show").style.visibility = "hidden";
+	document.getElementById("known").style.visibility = "visible";
+	document.getElementById("unknown").style.visibility = "visible";
+}
+</script>
+</html>
