@@ -1,4 +1,6 @@
 ---
+sep1: "|"
+sep2: "$"
 ---
 <!DOCTYPE html>
 <html lang="de">
@@ -11,6 +13,17 @@
         <meta property="og:title" content="Latein | Tim Göppel">
         <meta property="og:description" content="Latein">
 		<style>
+			* {
+				font-family: arial;
+			}
+			
+			.big {
+				text-align: center;
+				font-size: 40px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			
 			table, th, td {
 				border: 1px solid black
 			}
@@ -23,90 +36,148 @@
 		</style>
 	</head>
 	<body>
-		<p><span id="newwords">0</span>, <span id="wrongwords">0</span></p>
+		<p class="big"><span id="newwords">0</span>, <span id="wrongwords">0</span></p>
 		
-		<p id="currentword"></p>
+		<p id="currentword" class="big"></p>
 		
-		<p id="translation"></p>
+		<p id="translation" class="big"></p>
 		
-		<p><button id="show" onclick="showTranslation();">Zeige</button>
-		<button id="known" onclick="nextWord(true);" style="visibility: hidden;">Bekannt</button> <button id="unknown" onclick="nextWord(false);" style="visibility: hidden;">Unbekannt</button></p>
+		<button id="show" onclick="input(0);" style="display: block;" class="big">Zeige</button>
+		<div class="big"><button id="known" onclick="input(1);" style="display: none;" class="big">Bekannt</button>
+		<button id="unknown" onclick="input(2);" style="display: none;" class="big">Unbekannt</button></div>
 		
+		<p><button onclick="input(3);">Ausgewählte Vokabeln laden</button></p>
 		<table id="voctable">
 		<tr><th>Ausgewählt</th><th>Seite</th><th>Fällig bis</th><th>Erstes Wort</th></tr>{% assign col = 0 %}{% for voc in site.data.vokabeln %}
-		<tr><td><input type="checkbox" class="vocselected" onclick="selectVoc({% increment col %});"></td><td>S. {{ voc.page }}</td><td>{{ voc.date | date: "%e.%m.%Y" }}</td><td>{% assign example = voc.vocabulary | first %}{{ example[0] }}: {{ example[1] }}</td></tr>{% endfor %}
+		<tr><td><input type="checkbox" class="vocselected" onclick="input(4, {% increment col %});"></td><td>S. {{ voc.page }}</td><td>{{ voc.date | date: "%e.%m.%Y" }}</td><td>{% assign example = voc.vocabulary | first %}{{ example[0] }}: {{ example[1] }}</td></tr>{% endfor %}
 		</table>
-		<p><button onclick="loadWords();">Vokabeln laden</button></p>
 	</body>
 <script defer type="text/javascript">
+function arrayFromLocalStorage(key) {
+	const str = localStorage.getItem(key);
+	return str ? str.split("{{ page.sep1 }}") : [];
+}
+
+/*
+0: Select words → 1
+1: Give a show button → 1 / 2
+2: Known or unknown → 0 / 1 / 1
+*/
+let state = 0;
+
+// All vocabulary (from the .yml file)
 const vocabulary = [ {% for voc in site.data.vokabeln %}
 	[{% for row in voc.vocabulary %}["{{ row | join: '", "'}}"]{% unless forloop.last %},{% endunless %}{% endfor %}]{% unless forloop.last %},{% endunless %}{% endfor %}
 ];
+
+// The single word that is currently being learned
 let currentWord = null;
-let selectedVocs = localStorage.getItem("selectedvocs");
-if(!Array.isArray(selectedVocs)) {
-	selectedVocs = [];
+
+// The vocabulary pages that are selected
+let selectedVocs = arrayFromLocalStorage("selectedvocs").map(elem => elem == "true");
+if(!selectedVocs.length) {
 	selectedVocs[vocabulary.length - 1] = true;
 }
-
-let currentWords = localStorage.getItem("currentwords");
-if(!Array.isArray(currentWords)) {
-	loadWords();
-}
-
-function loadWords() {
-	currentWords = [[], []];
-	currentWords[0] = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem);
-	currentWord = -1;
-	nextWord(false);
-}
-
+// Check the checkboxes following the data of the local storage
 const selectedVocElems = document.getElementsByClassName("vocselected");
 selectedVocs.forEach((elem, index) => selectedVocElems[index].checked = elem == true);
 
-
-function selectVoc(number) {
-	selectedVocs[number] = selectedVocs[number] != true;
-	localStorage.setItem("selectedvocs", selectedVocs);
+// All actual words that are to be learned
+let currentWords = arrayFromLocalStorage("currentwords").map(elem => elem.split("{{ page.sep2 }}"));
+let currentWordsUnknown = arrayFromLocalStorage("currentwordsunknown").map(elem => elem.split("{{ page.sep2 }}"));
+if(!(currentWords.length && Array.isArray(currentWordsUnknown))) {
+	loadWords();
 }
+// Get next word since something will always be in "currentWords"
+getNextWord();
 
-function updateCurrentWords() {
-	document.getElementById("newwords").innerHTML = currentWords[0].length;
-	document.getElementById("wrongwords").innerHTML = currentWords[1].length;
-	localStorage.setItem("currentwords", currentWords);
-}
+updateUI();
 
-function nextWord(known) {
-	document.getElementById("translation").innerHTML = "";
-	let newCurrentWords = currentWords[0];
-	if(known) {
-		newCurrentWords.splice(currentWord, 1);
-	} else {
-		const wrongWord = newCurrentWords[currentWord];
-		if(wrongWord) {
-			currentWords[1].push(wrongWord);
-			newCurrentWords.splice(currentWord, 1);
-		}
+function input(type, extraData) {
+	switch(type) {
+		// Show translation
+		case 0:
+			if(state == 1) {
+				const translation = currentWords[currentWord];
+				document.getElementById("translation").innerHTML = translation[1] + (translation[2] ? "<br><i>" + translation[2] + "</i>" : "");
+				state = 2;
+			}
+			break;
+		
+		// Learn the words (mark as known/unknown)
+		case 1:
+		case 2:
+			if(state == 2) {
+				// Reset translation
+				document.getElementById("translation").innerHTML = "";
+				// If the word was not known, add it to the list later
+				if(type == 2) currentWordsUnknown.push(currentWords[currentWord]);
+				// Remove learned word
+				currentWords.splice(currentWord, 1);
+				// Get the next word
+				getNextWord();
+			}
+			break;
+		
+		// Load the words
+		case 3:
+			loadWords();
+			getNextWord();
+			break;
+		
+		// Select the vocabulary pages for the selection later
+		case 4:
+			selectedVocs[extraData] = selectedVocs[extraData] != true;
+			// Since they were changed, also store them
+			localStorage.setItem("selectedvocs", selectedVocs.join("{{ page.sep1 }}"));
+			break;
 	}
-	if(!newCurrentWords.length) {
-		currentWords[0] = currentWords[1];
-		newCurrentWords = currentWords[0];
-		currentWords[1] = [];
-	}
-	currentWord = Math.floor(Math.random() * newCurrentWords.length);
-	document.getElementById("currentword").innerHTML = newCurrentWords.length ? newCurrentWords[currentWord][0] : "Fertig";
-	document.getElementById("show").style.visibility = "visible";
-	document.getElementById("known").style.visibility = "hidden";
-	document.getElementById("unknown").style.visibility = "hidden";
-	updateCurrentWords();
+	updateUI();
 }
 
-function showTranslation() {
-	const translation = currentWords[0][currentWord];
-	document.getElementById("translation").innerHTML = translation[1] + (translation[2] ? "<br><i>" + translation[2] + "</i>" : "");
-	document.getElementById("show").style.visibility = "hidden";
-	document.getElementById("known").style.visibility = "visible";
-	document.getElementById("unknown").style.visibility = "visible";
+function updateUI() {
+	document.getElementById("show").style.display = state == 1 ? "block" : "none";
+	document.getElementById("known").style.display = state == 2 ? "inline" : "none";
+	document.getElementById("unknown").style.display = state == 2 ? "inline" : "none";
+	document.getElementById("newwords").innerHTML = currentWords.length;
+	document.getElementById("wrongwords").innerHTML = currentWordsUnknown.length;
 }
+
+function loadWords() {
+	currentWords = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem);
+	currentWordsUnknown = [];
+}
+
+// Gets the next word (will alter the program state)
+function getNextWord() {
+	// If all "new" words have been learned, repeat the unknown ones
+	// (i.e. move the unknown words to the to-be-learned section and clear the unknown section)
+	if(!currentWords.length) {
+		currentWords = currentWordsUnknown;
+		currentWordsUnknown = [];
+	}
+	// Calculate a random index for the next word
+	currentWord = Math.floor(Math.random() * currentWords.length);
+	// Already finished learning?
+	const finished = currentWords.length;
+	// Set the next word
+	document.getElementById("currentword").innerHTML = finished ? currentWords[currentWord][0] : "Fertig!";
+	// Set the next state
+	state = finished ? 1 : 0
+	// Update the local storage for the current words
+	localStorage.setItem("currentwords", currentWords.map(elem => elem.join("{{ page.sep2 }}")).join("{{ page.sep1 }}"));
+	localStorage.setItem("currentwordsunknown", currentWordsUnknown.map(elem => elem.join("{{ page.sep2 }}")).join("{{ page.sep1 }}"));
+}
+
+// Add keyboard shortcuts
+document.addEventListener("keyup", e => {
+    if(e.key == "ArrowLeft") {
+		input(1);
+	} else if(e.key == "ArrowRight") {
+		input(2);
+	} else if(e.key == " " || e.key == "ArrowUp" || e.key == "ArrowDown") {
+		input(0);
+	}
+});
 </script>
 </html>
