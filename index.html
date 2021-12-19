@@ -41,11 +41,11 @@ sep2: "\\*"
 		<p id="currentword" class="big"></p>
 		
 		<p id="translation" class="big"></p>
-		<br>
+
 		<button id="show" onclick="input(0);" style="display: block;" class="big">Zeige</button>
 		<div class="big"><button id="known" onclick="input(1);" style="display: none;" class="big">Bekannt</button>
 		<button id="unknown" onclick="input(2);" style="display: none;" class="big">Unbekannt</button></div>
-		
+		<br>
 		<table id="voctable">
 		<tr><th>Ausgewählt</th><th>Seite</th><th>Fällig bis</th><th>Erstes Wort</th></tr>{% assign col = 0 %}{% for voc in site.data.vokabeln %}
 		<tr><td><input type="checkbox" class="vocselected" onclick="input(4, {% increment col %});"></td><td>S. {{ voc.page }}</td><td>{{ voc.date | date: "%e.%m.%Y" }}</td><td>{% assign example = voc.vocabulary | first %}{{ example[0] }}</td></tr>{% endfor %}
