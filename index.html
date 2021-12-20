@@ -99,7 +99,7 @@ function input(type, extraData) {
 		case 0:
 			if(state == 1) {
 				const translation = currentWords[currentWord];
-				document.getElementById("translation").innerHTML = translation[1] + (translation[2] ? "<br><i>" + translation[2] + "</i>" : "");
+				document.getElementById("translation").innerHTML = translation[1] + (translation[2] ? "<br><i>(" + translation[2] + ")</i>" : "");
 				state = 2;
 			}
 			break;
