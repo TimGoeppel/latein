@@ -51,11 +51,28 @@ sep2: "\\*"
 		<tr><td><input type="checkbox" class="vocselected" onclick="input(4, {% increment col %});"></td><td>S. {{ voc.page }}</td><td>{{ voc.date | date: "%e.%m.%Y" }}</td><td>{% assign example = voc.vocabulary | first %}{{ example[0] }}</td></tr>{% endfor %}
 		</table>
 		<p><button onclick="input(3);">Ausgewählte Vokabeln laden</button></p>
+		<p title="Falls aktiviert: Speichert die ausgewählten Wortschätze und die bekannten und unbekannten Vokabeln im 'localStorage'. Die Daten bleiben nur auf dem Gerät erhalten und werden nicht weitergegeben. Bei keiner Aktivierung wird auch nichts gespeichert."><input type="checkbox" class="cookies" onclick="updateCookies();">Cookies aktivieren</p>
 	</body>
 <script defer type="text/javascript">
+function updateCookies() {
+	localStorage.setItem("cookieson", document.getElementById("cookies").checked ? "true" : "");
+}
+if(localStorage.getItem("cookieson") == "true") {
+	document.getElementById("cookies").checked = true;
+} else {
+	document.getElementById("cookies").checked = false;
+	localStorage.clear();
+}
+
 function arrayFromLocalStorage(key) {
 	const str = localStorage.getItem(key);
 	return str ? str.split("{{ page.sep1 }}") : [];
+}
+
+function setLocalStorage(key, data) {
+	if(localStorage.getItem("cookieson") == "true") {
+		localStorage.setItem(key, data);
+	}
 }
 
 /*
@@ -129,7 +146,7 @@ function input(type, extraData) {
 		case 4:
 			selectedVocs[extraData] = selectedVocs[extraData] != true;
 			// Since they were changed, also store them
-			localStorage.setItem("selectedvocs", selectedVocs.join("{{ page.sep1 }}"));
+			setLocalStorage("selectedvocs", selectedVocs.join("{{ page.sep1 }}"));
 			break;
 	}
 	updateUI();
@@ -165,8 +182,8 @@ function getNextWord() {
 	// Set the next state
 	state = finished ? 1 : 0
 	// Update the local storage for the current words
-	localStorage.setItem("currentwords", currentWords.map(elem => elem.join("{{ page.sep2 }}")).join("{{ page.sep1 }}"));
-	localStorage.setItem("currentwordsunknown", currentWordsUnknown.map(elem => elem.join("{{ page.sep2 }}")).join("{{ page.sep1 }}"));
+	setLocalStorage("currentwords", currentWords.map(elem => elem.join("{{ page.sep2 }}")).join("{{ page.sep1 }}"));
+	setLocalStorage("currentwordsunknown", currentWordsUnknown.map(elem => elem.join("{{ page.sep2 }}")).join("{{ page.sep1 }}"));
 }
 
 // Add keyboard shortcuts
