@@ -49,8 +49,9 @@ sep2: "\\*"
 		<table id="voctable">
 		<tr><th>Ausgewählt</th><th>Seite</th><th>Fällig bis</th><th>Erstes Wort</th></tr>{% assign col = 0 %}{% for voc in site.data.vokabeln %}
 		<tr><td><input type="checkbox" class="vocselected" onclick="input(4, {% increment col %});"></td><td>S. {{ voc.page }}</td><td>{{ voc.date | date: "%e.%m.%Y" }}</td><td>{% assign example = voc.vocabulary | first %}{{ example[0] }}</td></tr>{% endfor %}
+		<tr><td><input type="checkbox" id="vocdot" onclick="input(5);"></td><td colspan="3">Wörter mit Punkt lernen</td></tr>
+		<tr><td colspan="4"><button onclick="input(3);">Ausgewählte Vokabeln laden</button></td></tr>
 		</table>
-		<p><button onclick="input(3);">Ausgewählte Vokabeln laden</button></p>
 		<p title="Falls aktiviert: Speichert die ausgewählten Wortschätze und die bekannten und unbekannten Vokabeln im 'localStorage'. Die Daten bleiben nur auf dem Gerät erhalten und werden nicht weitergegeben. Bei keiner Aktivierung wird auch nichts gespeichert."><input type="checkbox" id="cookies" onclick="updateCookies();">Cookies aktivieren</p>
 	</body>
 <script defer type="text/javascript">
@@ -67,6 +68,10 @@ if(localStorage.getItem("cookieson") == "true") {
 function arrayFromLocalStorage(key) {
 	const str = localStorage.getItem(key);
 	return str ? str.split("{{ page.sep1 }}") : [];
+}
+
+function boolFromLocalStorage(key) {
+	return localStorage.getItem(key) == "true";
 }
 
 function setLocalStorage(key, data) {
@@ -98,6 +103,7 @@ if(!selectedVocs.length) {
 // Check the checkboxes following the data of the local storage
 const selectedVocElems = document.getElementsByClassName("vocselected");
 selectedVocs.forEach((elem, index) => selectedVocElems[index].checked = elem == true);
+document.getElementById("vocdot").checked = boolFromLocalStorage("vocdot");
 
 // All actual words that are to be learned
 let currentWords = arrayFromLocalStorage("currentwords").map(elem => elem.split("{{ page.sep2 }}"));
@@ -148,6 +154,11 @@ function input(type, extraData) {
 			// Since they were changed, also store them
 			setLocalStorage("selectedvocs", selectedVocs.join("{{ page.sep1 }}"));
 			break;
+		
+		// Store whether vocabulary with dots should be learned
+		case 5:
+			setLocalStorage("vocdot", document.getElementById("vocdot").checked ? "true" : null);
+			break;
 	}
 	updateUI();
 }
@@ -161,7 +172,7 @@ function updateUI() {
 }
 
 function loadWords() {
-	currentWords = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem);
+	currentWords = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem && (!document.getElementById("vocdot").checked || elem[3]));
 	currentWordsUnknown = [];
 }
 
