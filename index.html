@@ -172,7 +172,7 @@ function updateUI() {
 }
 
 function loadWords() {
-	currentWords = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem && (!document.getElementById("vocdot").checked || elem[3]));
+	currentWords = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem && (document.getElementById("vocdot").checked || !elem[3]));
 	currentWordsUnknown = [];
 }
 
