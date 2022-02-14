@@ -223,6 +223,7 @@
     - ["quā", "1. wo  2. wie"]
     - ["nequāquam", "keineswegs, auf keine Weise"]
     - ["quot (unveränd.)", "wie viele", "Quote"]
+    - ["aliquot", "einige, etliche"]
     - ["quotus", "der wievielte", ~, true]
     - ["quotus quisque", "wie wenige", ~, true]
     - ["Quotus istud quisque fēcisset?", "Wie wenige hätten dies wohl getan?", ~, true]
