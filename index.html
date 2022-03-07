@@ -153,6 +153,8 @@ function input(type, extraData) {
 		
 		// Load the words
 		case 3:
+			// Reset translation
+			document.getElementById("translation").innerHTML = "";
 			loadWords();
 			getNextWord();
 			break;
