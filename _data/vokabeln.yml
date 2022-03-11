@@ -383,7 +383,7 @@
   - ["opulentus", "reich, mächtig"]
   - ["optimus", "der beste, sehr gut (eigtl. sehr reich)", "optimal"]
   - ["optimātēs, -ium", "Aristokraten"]
-  - ["inops, -ŏpis", "hilflos, arm"]
+  - ["inops, -ŏpis", "hilflos, arm", ~, true]
   - ["inopia", "Mangel, Not"]
   - ["cōpia", "1. Vorrat, Menge, Fülle	2. Möglichkeit", "Kopie"]
   - ["cōpiae, -ārum", "1. Vorräte	2. Truppen"]
