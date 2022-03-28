@@ -404,6 +404,7 @@
   - ["ōrāre", "reden, (er)bitten", "Oratorium"]
   - ["ōrātio, -ōnis f.", "Rede, Redegabe"]
   - ["ōrātor, -ōris", "Redner"]
+  - ["omnīnō Adv.", "gänzlich, überhaupt"]
 - page: 140 LW1
   date: 2022-3-17
   vocabulary:
@@ -416,6 +417,7 @@
   - ["lūsus, ūs ~ lūdus", "Spiel"]
   - ["lautitia", "Pracht, Luxus, Eleganz"]
   - ["prīncipium", "Beginn, Anfang"]
+  - ["digitus", "Finger"]
 - page: 131
   date: 2022-03-21
   vocabulary:
@@ -452,6 +454,7 @@
   - ["vehere, vēxī, vectum", "fortbewegen, (jem.,etw.) fahren", "Vehikel, Vektor"]
   - ["vehī, vectus sum", "sich fortbewegen, fahren (auf)"]
   - ["currū, nāve vehi", "auf einem Wagen, einem Schiff fahren"]
+  - ["invehī", "hineinfahren, losfahren (auf jem.)", "Invektive"]
 - page: 57
   date: 2022-3-24
   vocabulary:
@@ -489,6 +492,7 @@
   - ["reum dēfendere", "einen Angeklagten verteidigen"]
   - ["sē suaque dēfendere ab hostibus", "sich und seine Habe gegen die Feinde verteidigen"]
   - ["dēfēnsiō, -ōnis", "Verteidigung", ~, true]
+  - ["offendere", "1. anstoßen, antreffen 2. beleidigen", "offensiv"]
 - page: 126
   date: 2022-3-28
   vocabulary:
@@ -524,6 +528,7 @@
   - ["tertius", "der dritte", "Terz"]
   - ["tertium adv. Akk.", "zum dritten Mal"]
   - ["ternī, -ae, -a", "je drei", ~, true]
+  - ["triplex, -icis", "dreifach"]
 - page: 50
   date: 2022-3-31
   vocabulary:
@@ -566,3 +571,4 @@
   - ["in diēs crēscere, augēri", "von Tag zu Tag zunehmen"]
   - ["paucīs diēbus", "innerhalb weniger Tage"]
   - ["diū Adv.", "lange"]
+  - ["interdiū Adv.", "untertags, tagsüber"]
