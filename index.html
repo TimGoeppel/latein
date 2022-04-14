@@ -59,6 +59,7 @@ sep2: "\\*"
 		<tr class="hiddenrow{{ col }}" hidden="true"><th>Wort</th><th>Übersetzung</th><th>Fremdwörter</th></tr>{% for vocabulary in voc.vocabulary %}
 		<tr class="hiddenrow{{ col }}" hidden="true"><td>{% if vocabulary[3] %}&bull; {% endif %}{{ vocabulary[0] }}</td><td>{{ vocabulary[1] }}</td><td>{{ vocabulary[2] }}</td></tr>{% endfor %}{% endfor %}
 		<tr><td><input type="checkbox" id="vocdot" onclick="input(5);"></td><td colspan="2">Wörter mit Punkt lernen</td></tr>
+		<tr><td><input type="checkbox" id="vocfw" onclick="input(6);"></td><td colspan="2">Fremdwörter lernen</td></tr>
 		<tr><td colspan="3"><button onclick="input(3);">Ausgewählte Vokabeln laden</button></td></tr>
 		</table>
 		<p title="Falls aktiviert: Speichert die ausgewählten Wortschätze und die bekannten und unbekannten Vokabeln im 'localStorage'. Die Daten bleiben nur auf dem Gerät erhalten und werden nicht weitergegeben. Bei keiner Aktivierung wird auch nichts gespeichert."><input type="checkbox" id="cookies" onclick="updateCookies();">Cookies aktivieren</p>
@@ -113,6 +114,7 @@ if(!selectedVocs.length) {
 const selectedVocElems = document.getElementsByClassName("vocselected");
 selectedVocs.forEach((elem, index) => selectedVocElems[index].checked = elem == true);
 document.getElementById("vocdot").checked = boolFromLocalStorage("vocdot");
+document.getElementById("vocfw").checked = boolFromLocalStorage("vocfw");
 
 // All actual words that are to be learned
 let currentWords = arrayFromLocalStorage("currentwords").map(elem => elem.split("{{ page.sep2 }}"));
@@ -170,6 +172,11 @@ function input(type, extraData) {
 		case 5:
 			setLocalStorage("vocdot", document.getElementById("vocdot").checked ? "true" : null);
 			break;
+		
+		// Store whether fw should be learned
+		case 6:
+			setLocalStorage("vocfw", document.getElementById("vocfw").checked ? "true" : null);
+			break;
 	}
 	updateUI();
 }
@@ -196,7 +203,11 @@ function updateUI() {
 }
 
 function loadWords() {
-	currentWords = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem && (document.getElementById("vocdot").checked || !elem[3]));
+	const vocdotchecked = document.getElementById("vocdot").checked;
+	currentWords = selectedVocs.flatMap((elem, index) => elem ? vocabulary[index] : null).filter(elem => elem && (vocdotchecked || !elem[3]));
+	if(document.getElementById("vocfw").checked) {
+		currentWords = currentWords.filter(elem => elem[2]).map((elem, index) => [elem[2], elem[0], elem[1], elem[3]]);
+	}
 	currentWordsUnknown = [];
 }
 
