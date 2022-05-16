@@ -110,13 +110,7 @@ let currentWord = null;
 // The vocabulary pages that are selected
 let selectedVocs = arrayFromLocalStorage("selectedvocs").map(elem => elem == "true");
 if(!selectedVocs.length) {
-	const today = new Date();
-	function isToday(date) {
-		return date.getDate() <= today.getDate() && 
-			date.getMonth() <= today.getMonth() &&
-			date.getFullYear() <= today.getFullYear();
-	}
-	selectedVocs = [{% for voc in site.data.vokabeln %}isToday(new Date("{{ voc.date }}")){% unless forloop.last %}, {% endunless %}{% endfor %}];
+	selectedVocs[vocabulary.length - 1] = true;
 }
 // Check the checkboxes following the data of the local storage
 const selectedVocElems = document.getElementsByClassName("vocselected");
