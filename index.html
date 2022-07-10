@@ -56,7 +56,7 @@ sep2: "\\*"
 		<table id="voctable">
 		<tr onclick="toggleVocab();"><th colspan=3>Vokabeln<span id="vocabtoggled">&#9662;</span></th></tr>
 		<tr><th>Ausgewählt</th><th>Seite</th><th>Fällig bis</th></tr>{% for voc in site.data.vokabeln %}{% capture _ %}{% increment col %}{% endcapture %}
-		<tr{% unless forloop.last %} class="hideablerow" hidden="true"{% endunless %}><td><input type="checkbox" class="vocselected" onclick="input(4, {{ col | minus: 1 }});"><button onclick="toggleVocab({{ col }});">&Ouml;ffnen</button></td><td>S. {{ voc.page }}</td><td><time datetime="{{ voc.date }}">{{ voc.date | date: "%d.%m.%Y" }}</time></td></tr>
+		<tr class="mainrow"><td><input type="checkbox" class="vocselected" onclick="input(4, {{ col | minus: 1 }});"><button onclick="toggleVocab({{ col }});">&Ouml;ffnen</button></td><td>S. {{ voc.page }}</td><td><time datetime="{{ voc.date }}">{{ voc.date | date: "%d.%m.%Y" }}</time></td></tr>
 		<tr class="hiddenrow{{ col }}" hidden="true"><th>Wort</th><th>Übersetzung</th><th>Fremdwörter</th></tr>{% for vocabulary in voc.vocabulary %}
 		<tr class="hiddenrow{{ col }}" hidden="true"><td>{% if vocabulary[3] %}&bull; {% endif %}{{ vocabulary[0] }}</td><td>{{ vocabulary[1] }}</td><td>{{ vocabulary[2] }}</td></tr>{% endfor %}{% endfor %}
 		<tr><td><input type="checkbox" id="vocdot" onclick="input(5);"></td><td colspan="2">Wörter mit Punkt lernen</td></tr>
@@ -119,6 +119,17 @@ document.getElementById("vocdot").checked = boolFromLocalStorage("vocdot");
 document.getElementById("vocfw").checked = boolFromLocalStorage("vocfw");
 let typeAnswers = boolFromLocalStorage("voctype");
 document.getElementById("voctype").checked = typeAnswers;
+
+for(row of document.getElementsByClassName("mainrow")) {
+	const date = Date.parse(row.getElementsByTagName("td")[2].getElementsByTagName["time"][0].datetime);
+	const dateNow = Date.now();
+	if(dateNow.getYear() > date.getYear()
+	   || (dateNow.getYear() == date.getYear && dateNow.getMonth() > date.getMonth())
+	   || (dateNow.getYear() == date.getYear && dateNow.getMonth() == date.getMonth() && dateNow.getDate() > date.getDate())) {
+		row.className += " hideablerow";
+		row.hidden = true;
+	}
+}
 
 /*
 Whether the last answer (only when typing is enabled) is:
