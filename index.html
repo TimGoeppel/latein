@@ -121,11 +121,11 @@ let typeAnswers = boolFromLocalStorage("voctype");
 document.getElementById("voctype").checked = typeAnswers;
 
 for(row of document.getElementsByClassName("mainrow")) {
-	const date = Date.parse(row.getElementsByTagName("td")[2].getElementsByTagName["time"][0].getAttribute("datetime"));
-	const dateNow = Date.now();
-	if(dateNow.getYear() > date.getYear()
-	   || (dateNow.getYear() == date.getYear && dateNow.getMonth() > date.getMonth())
-	   || (dateNow.getYear() == date.getYear && dateNow.getMonth() == date.getMonth() && dateNow.getDate() > date.getDate())) {
+	const date = new Date(row.getElementsByTagName("td")[2].getElementsByTagName["time"][0].getAttribute("datetime"));
+	const dateNow = new Date();
+	if(dateNow.getFullYear() > date.getFullYear()
+	   || (dateNow.getFullYear() == date.getFullYear() && dateNow.getMonth() > date.getMonth())
+	   || (dateNow.getFullYear() == date.getFullYear() && dateNow.getMonth() == date.getMonth() && dateNow.getDate() > date.getDate())) {
 		row.className += " hideablerow";
 		row.hidden = true;
 	}
