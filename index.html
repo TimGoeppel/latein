@@ -121,7 +121,7 @@ let typeAnswers = boolFromLocalStorage("voctype");
 document.getElementById("voctype").checked = typeAnswers;
 
 for(row of document.getElementsByClassName("mainrow")) {
-	const date = new Date(row.getElementsByTagName("td")[2].getElementsByTagName["time"][0].getAttribute("datetime"));
+	const date = new Date(row.getElementsByTagName("td")[2].getElementsByTagName("time")[0].getAttribute("datetime"));
 	const dateNow = new Date();
 	if(dateNow.getFullYear() > date.getFullYear()
 	   || (dateNow.getFullYear() == date.getFullYear() && dateNow.getMonth() > date.getMonth())
