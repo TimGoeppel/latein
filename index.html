@@ -56,14 +56,14 @@ sep2: "\\*"
 		<br>
 		<table id="voctable">
 		<tr onclick="toggleVocab();"><th colspan=3>Vokabeln<span id="vocabtoggled">&#9662;</span></th></tr>
-		<tr><th>Ausgewählt</th><th>Seite</th><th>Fällig bis</th></tr>{% for voc in site.data.vokabeln %}{% capture _ %}{% increment col %}{% endcapture %}
-		<tr{% unless forloop.last %} class="hideablerow" hidden="true"{% endunless %}><td><input type="checkbox" class="vocselected" onclick="input(4, {{ col | minus: 1 }});"><button onclick="toggleVocab({{ col }});">&Ouml;ffnen</button></td><td>S. {{ voc.page }}</td><td><time datetime="{{ voc.date }}">{{ voc.date | date: "%d.%m.%Y" }}</time></td></tr>
-		<tr class="hiddenrow{{ col }}" hidden="true"><th>Wort</th><th>Übersetzung</th><th>Fremdwörter</th></tr>{% for vocabulary in voc.vocabulary %}
+		<tr><th>Ausgew&auml;hlt</th><th>Seite</th><th>F&auml;llig bis</th></tr>{% for voc in site.data.vokabeln %}{% capture _ %}{% increment col %}{% endcapture %}
+		<tr class="mainrow"><td><input type="checkbox" class="vocselected" onclick="input(4, {{ col | minus: 1 }});"><button onclick="toggleVocab({{ col }});">&Ouml;ffnen</button></td><td>S. {{ voc.page }}</td><td><time datetime="{{ voc.date }}">{{ voc.date | date: "%d.%m.%Y" }}</time></td></tr>
+		<tr class="hiddenrow{{ col }}" hidden="true"><th>Wort</th><th>&Uuml;bersetzung</th><th>Fremdw&ouml;rter</th></tr>{% for vocabulary in voc.vocabulary %}
 		<tr class="hiddenrow{{ col }}" hidden="true"><td><button onclick="customWords.addFromTable({{ col | minus: 1 }}, {{ forloop.index0 | split: ", " | last }});">&#128221;</button> {% if vocabulary[3] %}&bull; {% endif %}{{ vocabulary[0] }}</td><td>{{ vocabulary[1] }}</td><td>{{ vocabulary[2] }}</td></tr>{% endfor %}{% endfor %}
 		{% capture colcustom %}{{ col | plus: 1 }}{% endcapture %}<tr><td><input type="checkbox" class="vocselected" onclick="input(4, {{ colcustom | minus: 1 }});"><button onclick="toggleVocab({{ colcustom }});">&Ouml;ffnen</button></td><td colspan="2">Eigene Vokabeln &#127850;</td></tr>
-		<tr class="hiddenrow{{ colcustom }}" hidden="true"><th>Wort</th><th>Übersetzung</th><th>Fremdwörter</th></tr>
+		<tr class="hiddenrow{{ colcustom }}" hidden="true"><th>Wort</th><th>&Uuml;bersetzung</th><th>Fremdw&ouml;rter</th></tr>
 		<tr class="hiddenrow{{ colcustom }}" hidden="true"><td><input id="customword" type="text" placeholder="Neues Wort"></td><td><input id="customtranslation" type="text" placeholder="Übersetzung"></td><td><input id="customfw" type="text" placeholder="Fremdwörter"></td></tr>
-		<tr class="hiddenrow{{ colcustom }}" hidden="true"><td><label for="customdot">Mit Punkt</label><input id="customdot" type="checkbox"></td><td colspan="2"><button id="customsubmit" onclick="customWords.submit();">Einfügen</button></td></tr>
+		<tr class="hiddenrow{{ colcustom }}" hidden="true"><td><label for="customdot">Mit Punkt</label><input id="customdot" type="checkbox"></td><td><button id="customsubmit" onclick="customWords.submit();">Einf&uuml;gen</button></td><td><a id="customdownload" href="data:text/plain;charset=utf-8," download="vokabeln.txt" style="text-decoration: none" onclick="customWords.download(this);">&#128190;</a></td></tr>
 		<tr><td><input type="checkbox" id="vocdot" onclick="input(5);"></td><td colspan="2">Wörter mit Punkt lernen</td></tr>
 		<tr><td><input type="checkbox" id="vocfw" onclick="input(6);"></td><td colspan="2">Fremdwörter lernen</td></tr>
 		<tr><td><input type="checkbox" id="voctype" onclick="input(7);"></td><td colspan="2">Wörter eintippen</td></tr>
@@ -190,6 +190,15 @@ const customWords = {
 		if(fw || dot) wordArray.push(fw);
 		if(dot) wordArray.push(dot);
 		this.add(wordArray);
+	},
+	download: function(elem) {
+		// TODO: Download emoji?
+		const data = "text/plain;charset=utf-8," + encodeURIComponent(this.words.map(word => {
+			const toReturn = word.slice(0, 3).join("\t");
+			if(word[3]) return "\u2022 " + toReturn;
+			else return toReturn;
+		}).join("\n"));
+		elem.setAttribute("href", "data:" + data);
 	}
 };
 // Load custom words from local storage and add them to the vocabulary.
@@ -212,6 +221,17 @@ document.getElementById("vocfw").checked = boolFromLocalStorage("vocfw");
 let typeAnswers = boolFromLocalStorage("voctype");
 document.getElementById("voctype").checked = typeAnswers;
 
+// Hide main rows if they are too old
+for(let row of document.getElementsByClassName("mainrow")) {
+	const date = new Date(row.getElementsByTagName("td")[2].getElementsByTagName("time")[0].getAttribute("datetime"));
+	const dateNow = new Date();
+	if(dateNow.getFullYear() > date.getFullYear()
+	   || (dateNow.getFullYear() == date.getFullYear() && dateNow.getMonth() > date.getMonth())
+	   || (dateNow.getFullYear() == date.getFullYear() && dateNow.getMonth() == date.getMonth() && dateNow.getDate() > date.getDate())) {
+		row.className += " hideablerow";
+		row.hidden = true;
+	}
+}
 
 /*
 Whether the last answer (only when typing is enabled) is:
