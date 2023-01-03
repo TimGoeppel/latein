@@ -57,7 +57,7 @@ sep2: "\\*"
 		<table id="voctable">
 		<tr onclick="toggleVocab();"><th colspan=3>Vokabeln<span id="vocabtoggled">&#9662;</span></th></tr>
 		<tr><th>Ausgew&auml;hlt</th><th>Seite</th><th>F&auml;llig bis</th></tr>{% for voc in site.data.vokabeln %}{% capture _ %}{% increment col %}{% endcapture %}
-		<tr class="mainrow"><td><input type="checkbox" class="vocselected" onclick="input(4, {{ col | minus: 1 }});"><button onclick="toggleVocab({{ col }});">&Ouml;ffnen</button></td><td>S. {{ voc.page }}</td><td><time datetime="{{ voc.date }}">{{ voc.date | date: "%d.%m.%Y" }}</time></td></tr>
+		<tr class="mainrow"><td><input type="checkbox" class="vocselected" onclick="input(4, {{ col | minus: 1 }});"><button onclick="toggleVocab({{ col }});">&Ouml;ffnen</button></td><td>{% unless forloop.first %}S. {% endunless %}{{ voc.page }}</td><td><time datetime="{{ voc.date }}">{{ voc.date | date: "%d.%m.%Y" }}</time></td></tr>
 		<tr class="hiddenrow{{ col }}" hidden="true"><th>Wort</th><th>&Uuml;bersetzung</th><th>Fremdw&ouml;rter</th></tr>{% for vocabulary in voc.vocabulary %}
 		<tr class="hiddenrow{{ col }}" hidden="true"><td><button onclick="customWords.addFromTable({{ col | minus: 1 }}, {{ forloop.index0 | split: ", " | last }});">&#128221;</button> {% if vocabulary[3] %}&bull; {% endif %}{{ vocabulary[0] }}</td><td>{{ vocabulary[1] }}</td><td>{{ vocabulary[2] }}</td></tr>{% endfor %}{% endfor %}
 		{% capture colcustom %}{{ col | plus: 1 }}{% endcapture %}<tr><td><input type="checkbox" class="vocselected" onclick="input(4, {{ colcustom | minus: 1 }});"><button onclick="toggleVocab({{ colcustom }});">&Ouml;ffnen</button></td><td colspan="2">Eigene Vokabeln &#127850;</td></tr>
