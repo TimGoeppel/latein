@@ -15,13 +15,13 @@ sep2: "\\*"
 		<style>
 			* {
 				font-family: arial;
+				margin-left: auto;
+				margin-right: auto;
 			}
 			
 			.big {
 				text-align: center;
 				font-size: 40px;
-				margin-left: auto;
-				margin-right: auto;
 			}
 			
 			table, th, td {
@@ -39,10 +39,14 @@ sep2: "\\*"
 			#wrongwords, #unknown {
 				color: red;
 			}
+			
+			#cookies_p {
+				text-align: center;
 			}
 		</style>
 	</head>
 	<body>
+		<div id="learning">
 		<p class="big"><span id="newwords">0</span>, <span id="wrongwords">0</span></p>
 		
 		<p class="big"><span id="currentword"></span> <button id="customsave" class="big" onclick="customWords.add(currentWords[currentWord].slice());">&#128221;</button></p>
@@ -53,7 +57,9 @@ sep2: "\\*"
 		<button id="show" onclick="input(0);" style="display: block;" class="big">Zeige</button>
 		<div class="big"><button id="known" onclick="input(1);" style="display: none;" class="big">Bekannt</button>
 		<button id="unknown" onclick="input(2);" style="display: none;" class="big">Unbekannt</button></div>
+		</div>
 		<br>
+		<div id="options">
 		<table id="voctable">
 		<tr onclick="toggleVocab();"><th colspan=3>Vokabeln<span id="vocabtoggled">&#9662;</span></th></tr>
 		<tr><th>Ausgew&auml;hlt</th><th>Seite</th><th>F&auml;llig bis</th></tr>{% for voc in site.data.vokabeln %}{% capture _ %}{% increment col %}{% endcapture %}
@@ -69,7 +75,10 @@ sep2: "\\*"
 		<tr><td><input type="checkbox" id="voctype" onclick="input(7);"></td><td colspan="2">Wörter eintippen</td></tr>
 		<tr><td colspan="3"><button onclick="input(3);">Ausgewählte Vokabeln laden</button></td></tr>
 		</table>
-		<p title="Falls aktiviert: Speichert die ausgewählten Wortschätze und die bekannten und unbekannten Vokabeln im 'localStorage'. Die Daten bleiben nur auf dem Gerät erhalten und werden nicht weitergegeben. Bei keiner Aktivierung wird auch nichts gespeichert."><input type="checkbox" id="cookies" onclick="updateCookies();">Cookies aktivieren</p>
+		<p id="cookies_p" title="Falls aktiviert: Speichert die ausgewählten Wortschätze und die bekannten und unbekannten Vokabeln im 'localStorage'. Die Daten bleiben nur auf dem Gerät erhalten und werden nicht weitergegeben. Bei keiner Aktivierung wird auch nichts gespeichert."><input type="checkbox" id="cookies" onclick="updateCookies();">Cookies aktivieren</p>
+		</div>
+		
+		<div><button id="hide" style="display: block;" class="big" onclick="hide();"></button></div>
 	</body>
 <script defer type="text/javascript">
 function updateCookies() {
@@ -103,6 +112,13 @@ function setLocalStorage(key, data) {
 2: Known or unknown → 0 (done) / 1 (known and not done) / 1 (unknown and not done)
 */
 let state = 0;
+
+/*
+true: learning hidden
+false: options hidden
+*/
+let learningHidden = false;
+hide(); // set "learningHidden" to "true"
 
 // All vocabulary (from the .yml file)
 const vocabulary = [ {% for voc in site.data.vokabeln %}
@@ -211,6 +227,7 @@ let currentWord = null;
 // The vocabulary pages that are selected
 let selectedVocs = arrayFromLocalStorage("selectedvocs").map(elem => elem == "true");
 if(!selectedVocs.length) {
+	
 	selectedVocs[vocabulary.length - 2] = true;
 }
 // Check the checkboxes following the data of the local storage
@@ -310,6 +327,13 @@ function input(type, extraData) {
 			break;
 	}
 	updateUI();
+}
+
+function hide() {
+	learningHidden = !learningHidden;
+	document.getElementById("learning").hidden = learningHidden;
+	document.getElementById("options").hidden = !learningHidden;
+	document.getElementById("hide").innerHTML = learningHidden ? "&#9876;" : "&#9208;";
 }
 
 function toggleVocab(col) {
