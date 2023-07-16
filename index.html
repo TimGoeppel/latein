@@ -78,6 +78,14 @@ sep2: "\\*"
 		<p id="cookies_p" title="Falls aktiviert: Speichert die ausgewählten Wortschätze und die bekannten und unbekannten Vokabeln im 'localStorage'. Die Daten bleiben nur auf dem Gerät erhalten und werden nicht weitergegeben. Bei keiner Aktivierung wird auch nichts gespeichert."><input type="checkbox" id="cookies" onclick="updateCookies();">Cookies aktivieren</p>
 		</div>
 		
+		<div id="anmeldung" style="text-align: center;">
+		<table>
+		<tr><td><label class="big" for="benutzername">Benutzername</label></td><td><input type="text" id="benutzername" class="big" value="mescher"></td></tr>
+		<tr><td><label class="big" for="passwort">Passwort*</label><td><input type="password" id="passwort" class="big"></td></tr>
+		<table>
+		<p>* Passwort: catullus1+</p>
+		</div>
+		
 		<div><button id="hide" style="display: block;" class="big" onclick="hide();"></button></div>
 	</body>
 <script defer type="text/javascript">
@@ -113,12 +121,14 @@ function setLocalStorage(key, data) {
 */
 let state = 0;
 
+let anmeldung = true;
+
 /*
 true: learning hidden
 false: options hidden
 */
 let learningHidden = false;
-hide(); // set "learningHidden" to "true"
+hide();
 
 // All vocabulary (from the .yml file)
 const vocabulary = [ {% for voc in site.data.vokabeln %}
@@ -330,10 +340,19 @@ function input(type, extraData) {
 }
 
 function hide() {
-	learningHidden = !learningHidden;
-	document.getElementById("learning").hidden = learningHidden;
-	document.getElementById("options").hidden = !learningHidden;
-	document.getElementById("hide").innerHTML = learningHidden ? "&#9876;" : "&#9208;";
+	if(anmeldung) {
+		anmeldung = false;
+		document.getElementById("anmeldung").hidden = false;
+		document.getElementById("learning").hidden = true;
+		document.getElementById("options").hidden = true;
+		document.getElementById("hide").innerHTML = "Anmelden";
+	} else if(document.getElementById("benutzername").value==="mescher" && document.getElementById("passwort").value==="catullus1+") {
+		learningHidden = !learningHidden;
+		document.getElementById("anmeldung").hidden = true;
+		document.getElementById("learning").hidden = learningHidden;
+		document.getElementById("options").hidden = !learningHidden;
+		document.getElementById("hide").innerHTML = learningHidden ? "&#9876;" : "&#9208;";
+	}
 }
 
 function toggleVocab(col) {
